@@ -6,7 +6,7 @@ packages <- lapply(packages, FUN = function(x) {
     if (!require(x, character.only = TRUE)) {
         install.packages(x)
         library(x, character.only = TRUE)
-    }
+    }f
 })
 
 
@@ -21,7 +21,11 @@ GDeltLastweek<-data.table(GetGDELT(start.date = startstr,
 
 GDeltLastweek$Date1<-parse_date_time(as.character(GDeltLastweek$SQLDATE), order="ymd")
 
+#Load event codes
+eventcodes<-read.table("http://gdeltproject.org/data/lookups/CAMEO.eventcodes.txt", header=TRUE, sep="\t", as.is=TRUE, colClasses=c("character","character"))
+
+    
 # Format Tables------------------------------------------------------------
-EventsByDay<-GDeltLastweek[,(COUNT = .N),by=c("Date1", "EventCode")]
-EventsByCode<-GDeltLastweek[,(COUNT = .N), by=c("EventCode")]
+EventsByDay<-GDeltLastweek[,(COUNT = .N),by=c("Date1", "EventRootCode")]
+EventsByCode<-GDeltLastweek[,(COUNT = .N), by=c("EventRootCode")]
 ggplot(EventsByDay, aes(Date1, V1))+geom_bar(stat="identity")
