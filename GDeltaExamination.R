@@ -13,7 +13,7 @@ packages <- lapply(packages, FUN = function(x) {
 workingdir<-paste("C:\\Users", Sys.getenv("USERNAME"), "Documents\\Github\\EventAnalysis", sep = "\\")
 setwd(workingdir)
 
-DaysToGoBack = 14
+DaysToGoBack = 5
 
 #Define Dates
 endstr = format(Sys.Date()-1, format="%Y-%m-%d")
@@ -43,6 +43,10 @@ EventsByCode<-EventsByCode[order(-V1)]
 USOnlyEventsByDay<-USOnlyGDelt[,(COUNT = .N),by=c("Date1", "EventRootCode", "EVENTDESCRIPTION")]
 USOnlyEventsByCode<-USOnlyGDelt[,(COUNT = .N), by=c("EventRootCode", "EVENTDESCRIPTION")]
 USOnlyEventsByCode<-USOnlyEventsByCode[order(-V1)]
+
+USOnlyEventsByCode$USV1Perc<-USOnlyEventsByCode$V1/sum(USOnlyEventsByCode$V1)
+EventsByCode$AllV1Perc<-EventsByCode$V1/sum(EventsByCode$V1)
+PercentCombine<-merge(EventsByCode, USOnlyEventsByCode, by.x = "EVENTDESCRIPTION", by.y = "EVENTDESCRIPTION", suffixes = c(".All", ".US"))
 
 
 ggplot(EventsByCode, aes(EVENTDESCRIPTION, V1))+geom_bar(stat="identity")
