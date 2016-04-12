@@ -13,7 +13,7 @@ packages <- lapply(packages, FUN = function(x) {
 workingdir<-paste("C:\\Users", Sys.getenv("USERNAME"), "Documents\\Github\\EventAnalysis", sep = "\\")
 setwd(workingdir)
 
-DaysToGoBack = 5
+DaysToGoBack = 28
 
 #Define Dates
 endstr = format(Sys.Date()-1, format="%Y-%m-%d")
@@ -31,18 +31,25 @@ eventcodes<-read.table("http://gdeltproject.org/data/lookups/CAMEO.eventcodes.tx
 
 # Code for reading the REDUCED dataset (1.1GB zip) (can download from http://data.gdeltproject.org/events/GDELT.MASTERREDUCEDV2.1979-2013.zip)
 # can't run locally because I can't allocate a large vector size...
-# temp <- tempfile()
-# download.file("http://data.gdeltproject.org/events/GDELT.MASTERREDUCEDV2.1979-2013.zip",temp)
-# temp<-"C:\\Users\\Daniel\\Downloads\\GDELT.MASTERREDUCEDV2.1979-2013.zip"
-data <- read.delim(unz(temp, "GDELT.MASTERREDUCEDV2.TXT"), sep="\t", header=TRUE, nrows=3000000, skip=0)
-# unlink(temp)
+temp <- tempfile()
+download.file("http://data.gdeltproject.org/events/GDELT.MASTERREDUCEDV2.1979-2013.zip",temp)
+
+# temp<-paste("C:\\Users", Sys.getenv("USERNAME"), "Downloads\\GDELT.MASTERREDUCEDV2.1979-2013.zip", sep = "\\")
+data <- read.delim(unz(temp, "GDELT.MASTERREDUCEDV2.TXT"), sep="\t", header=TRUE, nrows=1000, skip=0)
+unlink(temp)
 
 colnames(data) <- c("Day", "Actor1Code", "Actor2Code", "EventCode", "QuadCategory",
                  "GoldsteinScale", "Actor1Geo_Lat", "Actor1Geo_Long", "Actor2Geo_Lat", "Actor2Geo_Long",
                  "ActionGeo_Lat", "ActionGeo_Long")
-data$Day <- ymd(data$Day)
+
+data$Day2 <-as.POSIXct(paste(substr(as.character(data$Day), 7,8),'/', substr(as.character(data$Day), 5, 6),'/', substr(as.character(data$Day), 1, 4)), format="%d/%m/%Y")
+
+data$Day2<- paste(substr(as.character(data$Day), 7,8), substr(as.character(data$Day), 5, 6), substr(as.character(data$Day), 1, 4), sep="/")
+data$Day3<-as.POSIXct(data$Day2, tz="UTC", format="%d/%m/%Y")
+
+data$Day <- data$Day3
 # save(data, file = "gdelt.Rdata")
-x <- data.frame(table(year(data$Day)))
+x <- data.frame(table(month(data$Day)))
 ggplot(x, aes(x = Var1, y = Freq)) + geom_bar(stat = "identity") + theme_bw() +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 # Code for reading the REDUCED dataset (can download from http://data.gdeltproject.org/events/GDELT.MASTERREDUCEDV2.1979-2013.zip)
