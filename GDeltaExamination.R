@@ -13,7 +13,7 @@ packages <- lapply(packages, FUN = function(x) {
 workingdir<-paste("C:\\Users", Sys.getenv("USERNAME"), "Documents\\Github\\EventAnalysis", sep = "\\")
 setwd(workingdir)
 
-DaysToGoBack = 5
+DaysToGoBack = 2
 
 #Define Dates
 endstr = format(Sys.Date()-1, format="%Y-%m-%d")
@@ -49,7 +49,7 @@ ggplot(x, aes(x = Var1, y = Freq)) + geom_bar(stat = "identity") + theme_bw() +
 
     
 # Format Tables------------------------------------------------------------
-GDeltData$Date1<-parse_date_time(as.character(GDeltData$SQLDATE), order="ymd")
+GDeltData$Date1<-parse_date_time(as.character(GDeltData$SQLDATE), order="ymd", locale="English_United States.1252")
 GDeltData<-merge(GDeltData, eventcodes, by.x = "EventRootCode", by.y = "CAMEOEVENTCODE")
 
 USOnlyGDelt<-GDeltData[Actor2CountryCode=="USA",] # | Actor2CountryCode=="USA",]
@@ -57,6 +57,8 @@ USOnlyGDelt<-GDeltData[Actor2CountryCode=="USA",] # | Actor2CountryCode=="USA",]
 EventsByDay<-GDeltData[,(COUNT = .N),by=c("Date1", "EventRootCode", "EVENTDESCRIPTION")]
 EventsByCode<-GDeltData[,(COUNT = .N), by=c("EventRootCode", "EVENTDESCRIPTION")]
 EventsByCode<-EventsByCode[order(-V1)]
+
+EventsByCodeCountry<-GDeltData[,(COUNT=.N), by=c("Actor2CountryCode","EventRootCode", "EVENTDESCRIPTION")]
 
 USOnlyEventsByDay<-USOnlyGDelt[,(COUNT = .N),by=c("Date1", "EventRootCode", "EVENTDESCRIPTION")]
 USOnlyEventsByCode<-USOnlyGDelt[,(COUNT = .N), by=c("EventRootCode", "EVENTDESCRIPTION")]
